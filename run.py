@@ -137,15 +137,8 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
             )
         )
     
-    # Determine the axis limits
-    x_min = datetime(1954, 1, 1)
-    x_max = datetime(2023, 12, 31)
-    y_min = 0
-    y_max = 110
-    
-    # Apply the fixed axis ranges
-    fig.update_xaxes(range=[x_min, x_max])
-    fig.update_yaxes(range=[y_min, y_max])
+    # Apply the fixed axis ranges.
+    fig.update_yaxes(range=[0, 105])
 
     # Save the plot as an HTML file
     fig.write_html("index.html")
