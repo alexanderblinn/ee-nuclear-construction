@@ -132,7 +132,7 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
             x=0.5,
             traceorder="normal",
             tracegroupgap=20,
-            font=dict(size=9.5),
+            font=dict(size=9),
             itemwidth=30
             )
         )
@@ -159,7 +159,7 @@ def main() -> None:
     FILE_NAME = "nuclear_power_plants.xlsx"
     # FILE_PATH = os.path.join(os.path.dirname(__file__), "data", FILE_NAME)
 
-    FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "nuclear_reactors_europe_bubble", "data", FILE_NAME))
+    FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ee-nuclear-commissioning", "data", FILE_NAME))
 
     # Read and preprocess the data
     df = read_data(FILE_PATH)
