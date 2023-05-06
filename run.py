@@ -132,8 +132,8 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
             x=0.5,
             traceorder="normal",
             tracegroupgap=20,
-            font=dict(size=9),
-            itemwidth=30
+            font=dict(size=10),
+            itemwidth=60
             )
         )
     
