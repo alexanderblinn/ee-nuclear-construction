@@ -36,7 +36,7 @@ COUNTRY_COLORS = {
     "Sweden": "#2ca02c",
     "Switzerland": "#f032e6",
     "Turkey": "#9FE2BF",
-    "Ukraine": "#800080",
+    "Ukraine": "#48066f",
     "United Kingdom": "#ff0000"
 }
 
@@ -54,6 +54,7 @@ def read_data(file_path: str) -> None:
             }
         )
 
+
 def conditions(row, date_limit):
     if row["Baubeginn"] <= date_limit:
         if pd.isnull(row["erste Netzsynchronisation"]) and pd.isnull(row["Kommerzieller Betrieb"]) and pd.isnull(row["Abschaltung"]) and pd.isnull(row["Bau/Projekt eingestellt"]):
@@ -69,7 +70,6 @@ def conditions(row, date_limit):
     return False
 
 
-
 def process_data(df: pd.DataFrame) -> dict[int, pd.DataFrame]:
     """Filter and compute the data and compute."""
     years = np.arange(1955, 2024)
@@ -77,16 +77,19 @@ def process_data(df: pd.DataFrame) -> dict[int, pd.DataFrame]:
     for year in years:
         mask = df.apply(conditions, axis=1, date_limit=datetime(year, 12, 31))
         data_year = df.loc[mask]
-        data_year_grouped = data_year.groupby(by="Land").size()
+
+        # Group the reactors with aborted construction separately
+        data_year_grouped = data_year.groupby(by=["Land", data_year["Bau/Projekt eingestellt"].notnull()]).size()
         data_year_grouped.name = "number of reactors"
-        result[year] = data_year_grouped
+
+        result[year] = data_year_grouped.unstack(fill_value=0)
     return result
 
 
 def plot_data(data: dict[int, pd.DataFrame]) -> None:
     """Plot the number of nuclear reactors under construction"""
     fig = go.Figure()
-    
+
     # Get unique country names
     countries = set()
     for df in data.values():
@@ -95,20 +98,36 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
 
     # Loop through countries and add a trace for each country
     for country in countries:
-        country_values = [df.get(country) for df in data.values()]
-        
-        fig.add_trace(go.Bar(
-            x=list(data.keys()),
-            y=country_values,
-            name=country,
-            marker=dict(
-                color=COUNTRY_COLORS[country],
-                line=dict(width=0),
-                showscale=False,
-                opacity=1
+        for idx, aborted in enumerate([False, True]):
+            country_values = []
+            for df in data.values():
+                try:
+                    value_ = df.loc[country, aborted]
+                    value =  value_ if value_ != 0 else None
+                except KeyError:
+                    value = None
+                country_values.append(value)
+
+            # ['', '/', '\\', 'x', '-', '|', '+', '.']
+            pattern = dict(shape="x", size=6, fgopacity=1) if aborted else None
+
+            fig.add_trace(go.Bar(
+                x=list(data.keys()),
+                y=country_values,
+                name=country,
+                legendgroup=country,
+                showlegend=False if aborted else True,
+                marker=dict(
+                    color=COUNTRY_COLORS[country],
+                    line=dict(width=0),
+                    showscale=False,
+                    opacity=1,
+                    pattern=pattern,
+                    pattern_fillmode="overlay"
                 ),
-            hovertemplate="%{y}"
-        ))
+                # hovertemplate="%{y}"
+                hovertemplate="%{y}" + (" (aborted)" if aborted else "")
+            ))
 
     fig.update_layout(
         title="Evolution of Nuclear Power Plant Construction in Europe:<br>Total Number of Nuclear Reactors Being Built by Country and Year",
@@ -136,7 +155,47 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
             itemwidth=60
             )
         )
-    
+
+
+    # Custom legend pattern for reactors.
+    height, width = 0.03, 0.05
+    fig.add_shape(
+        type="rect", xref="paper", yref="paper",
+        x0=0.69-width, x1=0.69, y0=0.985-height, y1=0.985,
+        fillcolor=None, line=dict(width=1.5, color="black")
+        )
+
+    fig.add_shape(
+        type="rect", xref="paper", yref="paper",
+        x0=0.69-width, x1=0.69, y0=0.935-height, y1=0.935,
+        fillcolor=None, line=dict(width=1.5, color="black")
+        )
+
+    fig.add_shape(
+        type="line", xref="paper", yref="paper",
+        x0=0.69 - width, x1=0.69, y0=0.935 - height, y1=0.935,
+        line=dict(color="black", width=1.5)
+    )
+
+    fig.add_shape(
+        type="line", xref="paper", yref="paper",
+        x0=0.69 - width, x1=0.69, y0=0.935, y1=0.935 - height,
+        line=dict(color="black", width=1.5)
+    )
+
+
+    # Custom legend for reactors being built
+    fig.add_annotation(
+        x=0.7, y=1, xref="paper", yref="paper", xanchor="left", yanchor="top",
+        text="Construction Completed or Underway", showarrow=False
+    )
+
+    # Custom legend for reactors being built
+    fig.add_annotation(
+        x=0.7, y=0.95, xref="paper", yref="paper", xanchor="left", yanchor="top",
+        text="Construction Later Abandoned or Suspended", showarrow=False
+    )
+
     # Apply the fixed axis ranges.
     fig.update_yaxes(range=[0, 105])
 
