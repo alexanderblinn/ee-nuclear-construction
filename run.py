@@ -34,7 +34,7 @@ COUNTRY_COLORS = {
     "Slovenia": "#7DF9FF",
     "Spain": "#c0c0c0",
     "Sweden": "#2ca02c",
-    "Switzerland": "#f032e6",
+    "Switzerland": "#c400a4",
     "Turkey": "#9FE2BF",
     "Ukraine": "#48066f",
     "United Kingdom": "#ff0000"
@@ -161,39 +161,39 @@ def plot_data(data: dict[int, pd.DataFrame]) -> None:
     height, width = 0.03, 0.05
     fig.add_shape(
         type="rect", xref="paper", yref="paper",
-        x0=0.69-width, x1=0.69, y0=0.985-height, y1=0.985,
+        x0=0.64-width, x1=0.64, y0=0.985-height, y1=0.985,
         fillcolor=None, line=dict(width=1.5, color="black")
         )
 
     fig.add_shape(
         type="rect", xref="paper", yref="paper",
-        x0=0.69-width, x1=0.69, y0=0.935-height, y1=0.935,
+        x0=0.64-width, x1=0.64, y0=0.935-height, y1=0.935,
         fillcolor=None, line=dict(width=1.5, color="black")
         )
 
     fig.add_shape(
         type="line", xref="paper", yref="paper",
-        x0=0.69 - width, x1=0.69, y0=0.935 - height, y1=0.935,
+        x0=0.64 - width, x1=0.64, y0=0.935 - height, y1=0.935,
         line=dict(color="black", width=1.5)
     )
 
     fig.add_shape(
         type="line", xref="paper", yref="paper",
-        x0=0.69 - width, x1=0.69, y0=0.935, y1=0.935 - height,
+        x0=0.64 - width, x1=0.64, y0=0.935, y1=0.935 - height,
         line=dict(color="black", width=1.5)
     )
 
 
     # Custom legend for reactors being built
     fig.add_annotation(
-        x=0.7, y=1, xref="paper", yref="paper", xanchor="left", yanchor="top",
+        x=0.65, y=1, xref="paper", yref="paper", xanchor="left", yanchor="top",
         text="Construction Completed or Underway", showarrow=False
     )
 
     # Custom legend for reactors being built
     fig.add_annotation(
-        x=0.7, y=0.95, xref="paper", yref="paper", xanchor="left", yanchor="top",
-        text="Construction Later Abandoned or Suspended", showarrow=False
+        x=0.65, y=0.95, xref="paper", yref="paper", xanchor="left", yanchor="top",
+        text="Construction Later Abandoned or Never Commissioned", showarrow=False
     )
 
     # Apply the fixed axis ranges.
